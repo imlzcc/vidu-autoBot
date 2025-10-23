@@ -186,10 +186,39 @@ vidu-extension/
 
 本项目仅供学习和个人使用，请遵守Vidu平台的使用条款。
 
+## 📦 安装包下载
+
+### 从GitHub下载
+1. 访问 [GitHub仓库](https://github.com/your-username/vidu-batch-video-generator)
+2. 点击 "Code" -> "Download ZIP"
+3. 解压到本地文件夹
+4. 按照上述安装方法加载插件
+
+### 从源码构建
+```bash
+git clone https://github.com/your-username/vidu-batch-video-generator.git
+cd vidu-batch-video-generator
+# 直接加载到Chrome扩展程序
+```
+
+## 🤝 贡献指南
+
+欢迎提交Issue和Pull Request来帮助改进这个项目！
+
+1. Fork 此仓库
+2. 创建您的特性分支 (`git checkout -b feature/AmazingFeature`)
+3. 提交您的更改 (`git commit -m 'Add some AmazingFeature'`)
+4. 推送到分支 (`git push origin feature/AmazingFeature`)
+5. 打开一个Pull Request
+
+## 📄 许可证
+
+本项目采用 MIT 许可证 - 查看 [LICENSE](LICENSE) 文件了解详情
+
 ## 支持
 
 如有问题或建议，请通过以下方式联系：
-- 提交Issue到项目仓库
+- 提交Issue到 [GitHub仓库](https://github.com/your-username/vidu-batch-video-generator/issues)
 - 发送邮件至开发者邮箱
 
 ---
