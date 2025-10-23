@@ -337,9 +337,14 @@ class VideuFloatingBall {
         }
         
         // 关闭面板
-        this.floatingPanel.querySelector('.vidu-panel-close').addEventListener('click', () => {
-            this.hidePanel();
-        });
+        const closeBtn = this.floatingPanel.querySelector('.vidu-panel-close');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                this.hidePanel();
+            });
+        } else {
+            console.error('关闭按钮未找到');
+        }
         
         // 文件上传事件
         const fileInput = document.getElementById('vidu-file-input');
@@ -348,7 +353,8 @@ class VideuFloatingBall {
         const selectFilesBtn = document.getElementById('vidu-select-files');
         
         // 文件夹选择
-        selectFolderBtn.addEventListener('click', async () => {
+        if (selectFolderBtn) {
+            selectFolderBtn.addEventListener('click', async () => {
             try {
                 if ('showDirectoryPicker' in window) {
                     const directoryHandle = await window.showDirectoryPicker();
@@ -365,48 +371,68 @@ class VideuFloatingBall {
                 try { fileInput.setAttribute('webkitdirectory', ''); fileInput.setAttribute('directory', ''); fileInput.webkitdirectory = true; fileInput.multiple = true; fileInput.click(); } catch (_) {}
                 this.logMessage('文件夹选择失败: ' + (error && error.message ? error.message : String(error)), 'error');
             }
-        });
+            });
+        } else {
+            console.error('文件夹选择按钮未找到');
+        }
         
         // 文件选择
-        selectFilesBtn.addEventListener('click', () => {
+        if (selectFilesBtn) {
+            selectFilesBtn.addEventListener('click', () => {
             try { fileInput.removeAttribute('webkitdirectory'); fileInput.removeAttribute('directory'); } catch (_) {}
             fileInput.webkitdirectory = false;
             fileInput.multiple = true;
             fileInput.click();
-        });
+            });
+        } else {
+            console.error('文件选择按钮未找到');
+        }
         
-        fileInput.addEventListener('change', (e) => {
-            this.handleFileSelect(e.target.files);
-        });
+        if (fileInput) {
+            fileInput.addEventListener('change', (e) => {
+                this.handleFileSelect(e.target.files);
+            });
+        } else {
+            console.error('文件输入框未找到');
+        }
         
         // 拖拽上传
-        uploadArea.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            uploadArea.classList.add('dragover');
-        });
-        
-        uploadArea.addEventListener('dragleave', () => {
-            uploadArea.classList.remove('dragover');
-        });
-        
-        uploadArea.addEventListener('drop', (e) => {
-            e.preventDefault();
-            uploadArea.classList.remove('dragover');
-            this.handleFileSelect(e.dataTransfer.files);
-        });
+        if (uploadArea) {
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+            
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('dragover');
+            });
+            
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                this.handleFileSelect(e.dataTransfer.files);
+            });
+        } else {
+            console.error('上传区域未找到');
+        }
         
         // 提示词输入事件
         const promptTextarea = document.getElementById('vidu-prompt-textarea');
         const pastePromptsBtn = document.getElementById('vidu-paste-prompts');
         const clearPromptsBtn = document.getElementById('vidu-clear-prompts');
         
-        promptTextarea.addEventListener('input', () => {
-            this.updatePrompts();
-            this.checkReadyState();
-        });
+        if (promptTextarea) {
+            promptTextarea.addEventListener('input', () => {
+                this.updatePrompts();
+                this.checkReadyState();
+            });
+        } else {
+            console.error('提示词文本框未找到');
+        }
         
         // 粘贴提示词
-        pastePromptsBtn.addEventListener('click', async () => {
+        if (pastePromptsBtn) {
+            pastePromptsBtn.addEventListener('click', async () => {
             try {
                 const text = await navigator.clipboard.readText();
                 if (text.trim()) {
@@ -422,50 +448,85 @@ class VideuFloatingBall {
                 // 降级方案：聚焦到文本框让用户手动粘贴
                 promptTextarea.focus();
             }
-        });
+            });
+        } else {
+            console.error('粘贴按钮未找到');
+        }
         
         // 清空提示词
-        clearPromptsBtn.addEventListener('click', () => {
-            promptTextarea.value = '';
-            this.updatePrompts();
-            this.checkReadyState();
-            this.logMessage('已清空提示词', 'info');
-        });
+        if (clearPromptsBtn) {
+            clearPromptsBtn.addEventListener('click', () => {
+                if (promptTextarea) {
+                    promptTextarea.value = '';
+                    this.updatePrompts();
+                    this.checkReadyState();
+                    this.logMessage('已清空提示词', 'info');
+                }
+            });
+        } else {
+            console.error('清空按钮未找到');
+        }
         
         // 设置变更事件
         ['vidu-process-mode', 'vidu-batch-size', 'vidu-wait-time', 'vidu-check-interval', 'vidu-max-retries', 'vidu-aspect-ratio', 'vidu-generation-count'].forEach(id => {
-            document.getElementById(id).addEventListener('change', () => {
-                this.updateSettings();
-            });
+            const element = document.getElementById(id);
+            if (element) {
+                element.addEventListener('change', () => {
+                    this.updateSettings();
+                });
+            } else {
+                console.error(`设置元素未找到: ${id}`);
+            }
         });
         
         // 错峰模式切换事件
-        document.getElementById('vidu-off-peak-mode').addEventListener('change', () => {
-            this.updateSettings();
-        });
+        const offPeakModeToggle = document.getElementById('vidu-off-peak-mode');
+        if (offPeakModeToggle) {
+            offPeakModeToggle.addEventListener('change', () => {
+                this.updateSettings();
+            });
+        } else {
+            console.error('错峰模式切换器未找到');
+        }
         
         // 处理模式切换事件
-        document.getElementById('vidu-process-mode').addEventListener('change', () => {
-            this.toggleProcessMode();
-        });
+        const processModeSelect = document.getElementById('vidu-process-mode');
+        if (processModeSelect) {
+            processModeSelect.addEventListener('change', () => {
+                this.toggleProcessMode();
+            });
+        } else {
+            console.error('处理模式选择器未找到');
+        }
         
         // 按钮事件
-        document.getElementById('vidu-start-btn').addEventListener('click', () => {
-            this.startProcessing();
-        });
+        const startBtn = document.getElementById('vidu-start-btn');
+        if (startBtn) {
+            startBtn.addEventListener('click', () => {
+                this.startProcessing();
+            });
+        } else {
+            console.error('开始按钮未找到');
+        }
         
-        document.getElementById('vidu-stop-btn').addEventListener('click', () => {
-            this.stopProcessing();
-        });
+        const stopBtn = document.getElementById('vidu-stop-btn');
+        if (stopBtn) {
+            stopBtn.addEventListener('click', () => {
+                this.stopProcessing();
+            });
+        } else {
+            console.error('停止按钮未找到');
+        }
         
-        document.getElementById('vidu-clear-btn').addEventListener('click', () => {
-            this.clearAll();
-        });
+        const clearBtn = document.getElementById('vidu-clear-btn');
+        if (clearBtn) {
+            clearBtn.addEventListener('click', () => {
+                this.clearAll();
+            });
+        } else {
+            console.error('清除按钮未找到');
+        }
         
-        // 参考生视频按钮事件
-        document.getElementById('vidu-reference-btn').addEventListener('click', () => {
-            this.switchToReferenceMode();
-        });
         
         // 点击面板外部关闭
         document.addEventListener('click', (e) => {
