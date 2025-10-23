@@ -1,0 +1,32 @@
+{
+  "manifest_version": 3,
+  "name": "Vidu悬浮球批量视频生成插件",
+  "version": "3.0.0",
+  "description": "悬浮球模式批量上传图片和粘贴提示词，自动提交到Vidu平台生成视频，支持图生视频和参考生视频",
+  "permissions": ["activeTab", "storage", "scripting"],
+  "action": {
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    },
+    "default_popup": "popup.html"
+  },
+  "host_permissions": ["https://www.vidu.cn/*"],
+        "content_scripts": [
+          {
+            "matches": ["https://www.vidu.cn/create/img2video*", "https://www.vidu.cn/create/reference*", "https://www.vidu.cn/create/character2video*"],
+            "js": ["content.js", "floating-ball.js"],
+            "css": ["floating-ball.css"],
+            "run_at": "document_end"
+          }
+        ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}

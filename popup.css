@@ -1,0 +1,376 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #333;
+    min-height: 600px;
+}
+
+.container {
+    width: 400px;
+    padding: 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    margin: 10px;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.header h1 {
+    color: #2c3e50;
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.version {
+    font-size: 12px;
+    color: #666;
+    font-weight: 400;
+}
+
+.section {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #667eea;
+}
+
+.section h3 {
+    color: #2c3e50;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.btn {
+    padding: 10px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    display: inline-block;
+    text-align: center;
+    min-width: 80px;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #56ab2f, #a8e6cf);
+    color: white;
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, #ff416c, #ff4b2b);
+    color: white;
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+}
+
+.folder-path {
+    margin-top: 10px;
+    padding: 8px;
+    background: white;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #666;
+    border: 1px solid #ddd;
+    min-height: 30px;
+}
+
+.file-preview {
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.preview-item {
+    margin-bottom: 10px;
+}
+
+.file-list {
+    margin-top: 5px;
+    padding: 8px;
+    background: white;
+    border-radius: 4px;
+    font-size: 12px;
+    max-height: 60px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+}
+
+.setting-item {
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.setting-item label {
+    font-size: 13px;
+    color: #555;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.setting-item input[type="number"] {
+    width: 60px;
+    padding: 4px 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #333 !important;
+    background-color: #fff !important;
+    -webkit-text-fill-color: #333 !important;
+    -webkit-box-shadow: 0 0 0 1000px #fff inset !important;
+}
+
+.setting-item input[type="number"]:focus {
+    color: #333 !important;
+    background-color: #fff !important;
+    -webkit-text-fill-color: #333 !important;
+    border-color: #667eea;
+    outline: none;
+}
+
+.setting-item input[type="checkbox"] {
+    margin: 0;
+}
+
+.mode-select {
+    padding: 6px 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 12px;
+    background-color: #fff;
+    color: #333;
+    min-width: 120px;
+}
+
+.queue-settings, .smart-settings {
+    margin-top: 10px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 4px;
+    border: 1px solid #e0e0e0;
+}
+
+.queue-settings h4, .smart-settings h4 {
+    font-size: 12px;
+    color: #555;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.status {
+    padding: 8px 12px;
+    background: #e3f2fd;
+    border-radius: 4px;
+    font-size: 13px;
+    color: #1976d2;
+    margin-bottom: 10px;
+    border-left: 3px solid #2196f3;
+}
+
+.progress {
+    width: 100%;
+    height: 8px;
+    background: #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+    width: 0%;
+    transition: width 0.3s ease;
+}
+
+.process-log {
+    max-height: 100px;
+    overflow-y: auto;
+    background: #f5f5f5;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 8px;
+    font-size: 11px;
+    font-family: 'Courier New', monospace;
+    color: #333;
+}
+
+.actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+}
+
+.log-entry {
+    margin-bottom: 2px;
+    padding: 2px 0;
+}
+
+.log-success {
+    color: #28a745;
+}
+
+.log-error {
+    color: #dc3545;
+}
+
+.log-info {
+    color: #17a2b8;
+}
+
+.log-warning {
+    color: #ffc107;
+}
+
+/* 滚动条样式 */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* 页面类型指示器 */
+.page-type-indicator {
+    text-align: center;
+    margin-bottom: 15px;
+    padding: 8px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    border: 1px solid #e9ecef;
+}
+
+.page-type-indicator span {
+    font-size: 13px;
+    font-weight: 600;
+    padding: 4px 8px;
+    border-radius: 4px;
+    background: #e9ecef;
+}
+
+/* 参考生视频模式样式 */
+.reference-info {
+    background: #e8f5e8;
+    border: 1px solid #c3e6c3;
+    border-radius: 6px;
+    padding: 12px;
+    margin-top: 10px;
+}
+
+.reference-info p {
+    font-size: 13px;
+    color: #2d5a2d;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.reference-info ul {
+    margin: 8px 0;
+    padding-left: 20px;
+}
+
+.reference-info li {
+    font-size: 12px;
+    color: #2d5a2d;
+    margin-bottom: 4px;
+}
+
+.reference-note {
+    margin-top: 10px;
+    padding: 8px;
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #856404;
+}
+
+/* 提示词输入区域 */
+.prompt-controls {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.prompt-textarea {
+    width: 100%;
+    min-height: 120px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 13px;
+    font-family: inherit;
+    resize: vertical;
+    background: white;
+    color: #333;
+}
+
+.prompt-textarea:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+}
+
+.prompt-hint {
+    margin-top: 8px;
+    font-size: 12px;
+    color: #666;
+    text-align: center;
+}
+
+.prompt-hint span {
+    font-weight: 600;
+    color: #333;
+}

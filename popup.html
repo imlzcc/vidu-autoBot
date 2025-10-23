@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vidu批量视频生成</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Vidu批量视频生成</h1>
+            <div class="version">v3.0.0</div>
+        </div>
+        
+        <div class="page-type-indicator">
+            <span id="pageType">检测页面类型中...</span>
+        </div>
+        
+        <!-- 图生视频模式 -->
+        <div id="img2videoSection" class="section">
+            <h3>选择文件夹</h3>
+            <button id="selectFolder" class="btn btn-primary">选择包含图片和Prompt的文件夹</button>
+            <div id="folderPath" class="folder-path"></div>
+        </div>
+        
+        <div id="filePreviewSection" class="section">
+            <h3>文件预览</h3>
+            <div id="filePreview" class="file-preview">
+                <div class="preview-item">
+                    <strong>图片文件:</strong>
+                    <div id="imageList" class="file-list"></div>
+                </div>
+                <div class="preview-item">
+                    <strong>Prompt文件:</strong>
+                    <div id="promptList" class="file-list"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 参考生视频模式 -->
+        <div id="referenceSection" class="section" style="display: none;">
+            <h3>参考生视频模式</h3>
+            <div class="reference-info">
+                <p>在此模式下，插件将：</p>
+                <ul>
+                    <li>自动切换到"参考生视频"标签页</li>
+                    <li>点击"主体库"按钮选择参考主体</li>
+                    <li>批量输入提示词生成视频</li>
+                    <li>自动启用错峰模式</li>
+                </ul>
+                <div class="reference-note">
+                    <strong>注意：</strong>请确保您已登录并有权访问主体库功能
+                </div>
+            </div>
+        </div>
+        
+        <!-- 提示词输入区域 -->
+        <div class="section">
+            <h3>提示词输入</h3>
+            <div class="prompt-controls">
+                <button id="pastePrompts" class="btn btn-secondary">📋 粘贴提示词</button>
+                <button id="clearPrompts" class="btn btn-secondary">🗑️ 清空</button>
+            </div>
+            <textarea 
+                id="promptTextarea" 
+                class="prompt-textarea"
+                placeholder="请粘贴提示词，每行一个提示词&#10;例如：&#10;女孩开心地笑了&#10;男孩在公园里跑步&#10;夕阳下的海滩风景&#10;&#10;注意：参考生视频模式下，每个提示词将生成一个视频"
+            ></textarea>
+            <div class="prompt-hint">
+                <span id="promptCount">0</span> 个提示词 | 
+                <span id="imageCount">0</span> 张图片 | 
+                将处理 <span id="taskCount">0</span> 个任务
+            </div>
+        </div>
+        
+        <div class="section">
+            <h3>批量处理设置</h3>
+            <div class="setting-item">
+                <label>处理模式:</label>
+                <select id="processMode" class="mode-select">
+                    <option value="queue">排队模式</option>
+                    <option value="smart">智能检测模式</option>
+                </select>
+            </div>
+            <div id="queueSettings" class="queue-settings">
+                <div class="setting-item">
+                    <label for="batchSize">每批处理数量:</label>
+                    <input type="number" id="batchSize" value="4" min="1" max="10">
+                </div>
+                <div class="setting-item">
+                    <label for="waitTime">等待时间（分钟）:</label>
+                    <input type="number" id="waitTime" value="2" min="1" max="10">
+                </div>
+            </div>
+            <div id="smartSettings" class="smart-settings" style="display: none;">
+                <div class="setting-item">
+                    <label for="checkInterval">检测间隔（秒）:</label>
+                    <input type="number" id="checkInterval" value="8" min="3" max="30">
+                </div>
+                <div class="setting-item">
+                    <label for="maxRetries">最大重试次数:</label>
+                    <input type="number" id="maxRetries" value="5" min="1" max="20">
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h3>处理状态</h3>
+            <div id="status" class="status">准备就绪</div>
+            <div id="progress" class="progress">
+                <div id="progressBar" class="progress-bar"></div>
+            </div>
+            <div id="processLog" class="process-log"></div>
+        </div>
+        
+        <div class="actions">
+            <button id="startProcess" class="btn btn-success" disabled>开始批量处理</button>
+            <button id="stopProcess" class="btn btn-danger" disabled>停止处理</button>
+            <button id="clearLog" class="btn btn-secondary">清空日志</button>
+        </div>
+    </div>
+    
+    <script src="popup.js"></script>
+</body>
+</html>

@@ -1,0 +1,675 @@
+/* 悬浮球样式 */
+.vidu-floating-ball {
+    position: fixed !important;
+    top: 50% !important;
+    right: 20px !important;
+    width: 60px !important;
+    height: 60px !important;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    border-radius: 50% !important;
+    cursor: pointer !important;
+    z-index: 10000 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4) !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    user-select: none !important;
+    transform: translateY(-50%) !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+.vidu-floating-ball:hover {
+    transform: translateY(-50%) scale(1.1);
+    box-shadow: 0 8px 30px rgba(102, 126, 234, 0.6);
+}
+
+.vidu-floating-ball.processing {
+    animation: vidu-pulse 2s infinite;
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.vidu-floating-ball-icon {
+    width: 28px;
+    height: 28px;
+    fill: white;
+    transition: transform 0.3s ease;
+}
+
+.vidu-floating-ball:hover .vidu-floating-ball-icon {
+    transform: rotate(10deg);
+}
+
+/* 悬浮面板样式 */
+.vidu-floating-panel {
+    position: fixed;
+    top: 50%;
+    right: 100px;
+    width: 420px;
+    max-height: 80vh;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    z-index: 9999;
+    transform: translateY(-50%) translateX(20px);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+}
+
+.vidu-floating-panel.show {
+    transform: translateY(-50%) translateX(0);
+    opacity: 1;
+    visibility: visible;
+}
+
+.vidu-panel-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.vidu-title-section {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.vidu-version {
+    font-size: 12px;
+    font-weight: 400;
+    opacity: 0.8;
+}
+
+.vidu-panel-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.vidu-panel-close:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: rotate(90deg);
+}
+
+.vidu-panel-content {
+    padding: 20px;
+    max-height: calc(80vh - 64px);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e0 transparent;
+}
+
+.vidu-panel-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.vidu-panel-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.vidu-panel-content::-webkit-scrollbar-thumb {
+    background: #cbd5e0;
+    border-radius: 3px;
+}
+
+.vidu-panel-content::-webkit-scrollbar-thumb:hover {
+    background: #a0aec0;
+}
+
+/* 上传区域 */
+.vidu-upload-section {
+    margin-bottom: 24px;
+}
+
+.vidu-section-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.vidu-upload-area {
+    border: 2px dashed #d1d5db;
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+    background: #f9fafb;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+}
+
+.vidu-upload-area:hover {
+    border-color: #667eea;
+    background: #f0f4ff;
+}
+
+.vidu-upload-area.dragover {
+    border-color: #667eea;
+    background: #e0e7ff;
+    transform: scale(1.02);
+}
+
+.vidu-upload-icon {
+    width: 48px;
+    height: 48px;
+    margin: 0 auto 12px;
+    opacity: 0.6;
+}
+
+.vidu-upload-text {
+    font-size: 14px;
+    color: #6b7280;
+    margin-bottom: 8px;
+}
+
+.vidu-upload-hint {
+    font-size: 12px;
+    color: #9ca3af;
+    margin-bottom: 16px;
+}
+
+.vidu-upload-buttons {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 12px;
+}
+
+.vidu-upload-buttons .vidu-btn {
+    padding: 8px 16px;
+    font-size: 12px;
+    border-radius: 6px;
+}
+
+.vidu-file-input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+/* 图片预览 */
+.vidu-image-preview {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.vidu-image-item {
+    position: relative;
+    aspect-ratio: 1;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #f3f4f6;
+    border: 2px solid transparent;
+    transition: border-color 0.2s;
+}
+
+.vidu-image-item:hover {
+    border-color: #667eea;
+}
+
+.vidu-image-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.vidu-image-remove {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 20px;
+    height: 20px;
+    background: rgba(239, 68, 68, 0.9);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+}
+
+.vidu-image-remove:hover {
+    background: rgba(239, 68, 68, 1);
+}
+
+/* 提示词区域 */
+.vidu-prompt-section {
+    margin-bottom: 24px;
+}
+
+.vidu-prompt-controls {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.vidu-prompt-controls .vidu-btn {
+    padding: 6px 12px;
+    font-size: 12px;
+}
+
+.vidu-prompt-textarea {
+    width: 100%;
+    min-height: 120px;
+    padding: 12px;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 1.5;
+    resize: vertical;
+    transition: border-color 0.2s;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: #1f2937;
+    background-color: #ffffff;
+}
+
+.vidu-prompt-textarea:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.vidu-prompt-textarea::placeholder {
+    color: #9ca3af;
+}
+
+.vidu-prompt-hint {
+    font-size: 12px;
+    color: #6b7280;
+    margin-top: 8px;
+    text-align: center;
+}
+
+.vidu-prompt-hint span {
+    font-weight: 500;
+    color: #374151;
+}
+
+/* 设置区域 */
+.vidu-settings-section {
+    margin-bottom: 24px;
+    padding: 16px;
+    background: #f9fafb;
+    border-radius: 8px;
+}
+
+.vidu-setting-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.vidu-setting-item:last-child {
+    margin-bottom: 0;
+}
+
+.vidu-setting-label {
+    font-size: 13px;
+    color: #374151;
+    font-weight: 500;
+}
+
+.vidu-setting-input {
+    width: 60px;
+    padding: 4px 8px;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    font-size: 13px;
+    text-align: center;
+    color: #333 !important;
+    background-color: #fff !important;
+    -webkit-text-fill-color: #333 !important;
+    -webkit-box-shadow: 0 0 0 1000px #fff inset !important;
+}
+
+.vidu-setting-input:focus {
+    color: #333 !important;
+    background-color: #fff !important;
+    -webkit-text-fill-color: #333 !important;
+    border-color: #667eea;
+    outline: none;
+}
+
+.vidu-mode-select {
+    padding: 6px 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    font-size: 13px;
+    background-color: #fff;
+    color: #333;
+    min-width: 120px;
+}
+
+.vidu-mode-settings {
+    margin-top: 10px;
+    padding: 10px;
+    background: rgba(102, 126, 234, 0.05);
+    border-radius: 6px;
+    border: 1px solid rgba(102, 126, 234, 0.1);
+}
+
+.vidu-checkbox {
+    width: 16px;
+    height: 16px;
+    accent-color: #667eea;
+}
+
+/* 状态区域 */
+.vidu-status-section {
+    margin-bottom: 20px;
+}
+
+.vidu-status {
+    padding: 12px;
+    background: #e0f2fe;
+    border-radius: 8px;
+    font-size: 13px;
+    color: #0369a1;
+    border-left: 4px solid #0ea5e9;
+    margin-bottom: 12px;
+}
+
+.vidu-progress {
+    width: 100%;
+    height: 6px;
+    background: #e5e7eb;
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 12px;
+}
+
+.vidu-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+    width: 0%;
+    transition: width 0.3s ease;
+}
+
+.vidu-log {
+    max-height: 100px;
+    overflow-y: auto;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 8px;
+    font-size: 11px;
+    font-family: 'Monaco', 'Menlo', monospace;
+    color: #475569;
+}
+
+.vidu-log-entry {
+    margin-bottom: 2px;
+    padding: 1px 0;
+}
+
+.vidu-log-success { color: #059669; }
+.vidu-log-error { color: #dc2626; }
+.vidu-log-info { color: #2563eb; }
+.vidu-log-warning { color: #d97706; }
+
+/* 按钮区域 */
+.vidu-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.vidu-btn {
+    flex: 1;
+    padding: 12px 16px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.vidu-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.vidu-btn-primary {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+}
+
+.vidu-btn-primary:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.vidu-btn-danger {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+}
+
+.vidu-btn-danger:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.vidu-btn-secondary {
+    background: #f3f4f6;
+    color: #374151;
+    border: 1px solid #d1d5db;
+}
+
+.vidu-btn-secondary:hover:not(:disabled) {
+    background: #e5e7eb;
+}
+
+/* 响应式 */
+@media (max-width: 480px) {
+    .vidu-floating-panel {
+        width: calc(100vw - 40px);
+        right: 20px;
+        left: 20px;
+        transform: translateY(-50%);
+    }
+    
+    .vidu-floating-panel.show {
+        transform: translateY(-50%);
+    }
+}
+
+/* 滚动条样式 */
+.vidu-panel-content::-webkit-scrollbar,
+.vidu-log::-webkit-scrollbar {
+    width: 6px;
+}
+
+.vidu-panel-content::-webkit-scrollbar-track,
+.vidu-log::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 3px;
+}
+
+.vidu-panel-content::-webkit-scrollbar-thumb,
+.vidu-log::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+}
+
+.vidu-panel-content::-webkit-scrollbar-thumb:hover,
+.vidu-log::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* 动画 */
+@keyframes vidu-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+.vidu-floating-ball.processing {
+    animation: vidu-pulse 2s infinite;
+}
+
+@keyframes vidu-fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.vidu-image-item {
+    animation: vidu-fadeIn 0.3s ease;
+}
+
+/* 参考生视频按钮样式 */
+.vidu-reference-actions {
+    margin-top: 15px;
+    padding: 15px;
+    background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+    border: 1px solid #c3e6c3;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.vidu-btn-reference {
+    background: linear-gradient(135deg, #4CAF50, #66BB6A);
+    color: white;
+    font-weight: 600;
+    padding: 12px 24px;
+    font-size: 14px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+    width: 100%;
+    margin-bottom: 8px;
+}
+
+.vidu-btn-reference:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+    background: linear-gradient(135deg, #45a049, #5cb85c);
+}
+
+.vidu-btn-reference:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(76, 175, 80, 0.3);
+}
+
+.vidu-reference-hint {
+    font-size: 12px;
+    color: #2d5a2d;
+    line-height: 1.4;
+    margin: 0;
+}
+
+/* 视频生成设置区域 */
+.vidu-video-settings-section {
+    margin-bottom: 24px;
+    padding: 16px;
+    background: #f0f8ff;
+    border-radius: 8px;
+    border: 1px solid #b3d9ff;
+}
+
+.vidu-video-settings-section .vidu-section-title {
+    color: #1e40af;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* 切换开关样式 */
+.vidu-toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+    margin-right: 8px;
+}
+
+.vidu-toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.vidu-toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 24px;
+}
+
+.vidu-toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+.vidu-toggle-switch input:checked + .vidu-toggle-slider {
+    background-color: #4CAF50;
+}
+
+.vidu-toggle-switch input:checked + .vidu-toggle-slider:before {
+    transform: translateX(26px);
+}
+
+.vidu-toggle-label {
+    font-size: 12px;
+    color: #374151;
+    vertical-align: middle;
+}
