@@ -8,6 +8,7 @@ class VideuFloatingBall {
         this.lastPrompt = '';
         this.currentTaskIndex = 0;
         this.pageType = this.detectPageType();
+        this.currentMode = 'img2video'; // 默认模式
         this.settings = {
             processMode: 'queue',
             batchSize: 4,
@@ -45,7 +46,7 @@ class VideuFloatingBall {
     }
     
     updateUIForPageType() {
-        console.log('更新UI，当前页面类型:', this.pageType);
+        console.log('更新UI，当前页面类型:', this.pageType, '当前模式:', this.currentMode);
         
         const pageTypeEl = document.getElementById('vidu-page-type');
         const uploadSection = document.getElementById('vidu-upload-section');
@@ -67,26 +68,27 @@ class VideuFloatingBall {
             return;
         }
         
+        // 更新页面类型指示器
         if (this.pageType === 'reference') {
-            console.log('设置为参考生视频模式');
-            pageTypeEl.textContent = '参考生视频模式';
+            pageTypeEl.textContent = '当前页面：参考生视频';
             pageTypeEl.style.color = '#4CAF50';
+        } else if (this.pageType === 'img2video') {
+            pageTypeEl.textContent = '当前页面：图生视频';
+            pageTypeEl.style.color = '#2196F3';
+        } else {
+            pageTypeEl.textContent = '当前页面：未知类型';
+            pageTypeEl.style.color = '#FF9800';
+        }
+        
+        // 根据用户选择的模式更新UI
+        if (this.currentMode === 'reference') {
+            console.log('显示参考生视频模式界面');
             uploadSection.style.display = 'none';
             referenceSection.style.display = 'block';
             if (referenceActions) referenceActions.style.display = 'none';
             if (imageCountEl) imageCountEl.style.display = 'none';
-        } else if (this.pageType === 'img2video') {
-            console.log('设置为图生视频模式');
-            pageTypeEl.textContent = '图生视频模式';
-            pageTypeEl.style.color = '#2196F3';
-            uploadSection.style.display = 'block';
-            referenceSection.style.display = 'none';
-            if (referenceActions) referenceActions.style.display = 'block';
-            if (imageCountEl) imageCountEl.style.display = 'inline';
-        } else {
-            console.log('设置为未知页面模式');
-            pageTypeEl.textContent = '未知页面类型';
-            pageTypeEl.style.color = '#FF9800';
+        } else if (this.currentMode === 'img2video') {
+            console.log('显示图生视频模式界面');
             uploadSection.style.display = 'block';
             referenceSection.style.display = 'none';
             if (referenceActions) referenceActions.style.display = 'block';
@@ -120,9 +122,21 @@ class VideuFloatingBall {
                 <button class="vidu-panel-close">×</button>
             </div>
             <div class="vidu-panel-content">
-                <!-- 页面类型指示器 -->
-                <div class="vidu-page-type-indicator">
-                    <span id="vidu-page-type">检测页面类型中...</span>
+                <!-- 模式切换器 -->
+                <div class="vidu-mode-selector">
+                    <div class="vidu-mode-options">
+                        <label class="vidu-mode-option">
+                            <input type="radio" name="vidu-mode" value="img2video" id="vidu-mode-img2video" checked>
+                            <span class="vidu-mode-label">图生视频模式</span>
+                        </label>
+                        <label class="vidu-mode-option">
+                            <input type="radio" name="vidu-mode" value="reference" id="vidu-mode-reference">
+                            <span class="vidu-mode-label">参考生视频模式</span>
+                        </label>
+                    </div>
+                    <div class="vidu-page-type-indicator">
+                        <span id="vidu-page-type">检测页面类型中...</span>
+                    </div>
                 </div>
                 
                 <!-- 参考生视频快速按钮 (仅在图生视频页面显示) -->
@@ -291,6 +305,30 @@ class VideuFloatingBall {
         this.floatingBall.addEventListener('click', () => {
             this.togglePanel();
         });
+        
+        // 模式切换事件
+        const modeImg2Video = document.getElementById('vidu-mode-img2video');
+        const modeReference = document.getElementById('vidu-mode-reference');
+        
+        if (modeImg2Video) {
+            modeImg2Video.addEventListener('change', () => {
+                if (modeImg2Video.checked) {
+                    this.currentMode = 'img2video';
+                    this.updateUIForPageType();
+                    console.log('切换到图生视频模式');
+                }
+            });
+        }
+        
+        if (modeReference) {
+            modeReference.addEventListener('change', () => {
+                if (modeReference.checked) {
+                    this.currentMode = 'reference';
+                    this.updateUIForPageType();
+                    console.log('切换到参考生视频模式');
+                }
+            });
+        }
         
         // 页面类型指示器点击事件 - 手动刷新页面类型检测
         const pageTypeEl = document.getElementById('vidu-page-type');
