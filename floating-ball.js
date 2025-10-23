@@ -51,7 +51,6 @@ class VideuFloatingBall {
         const pageTypeEl = document.getElementById('vidu-page-type');
         const uploadSection = document.getElementById('vidu-upload-section');
         const referenceSection = document.getElementById('vidu-reference-section');
-        const referenceActions = document.getElementById('vidu-reference-actions');
         const imageCountEl = document.getElementById('vidu-image-count');
         
         // 检查元素是否存在
@@ -85,13 +84,11 @@ class VideuFloatingBall {
             console.log('显示参考生视频模式界面');
             uploadSection.style.display = 'none';
             referenceSection.style.display = 'block';
-            if (referenceActions) referenceActions.style.display = 'none';
             if (imageCountEl) imageCountEl.style.display = 'none';
         } else if (this.currentMode === 'img2video') {
             console.log('显示图生视频模式界面');
             uploadSection.style.display = 'block';
             referenceSection.style.display = 'none';
-            if (referenceActions) referenceActions.style.display = 'block';
             if (imageCountEl) imageCountEl.style.display = 'inline';
         }
         
@@ -139,15 +136,6 @@ class VideuFloatingBall {
                     </div>
                 </div>
                 
-                <!-- 参考生视频快速按钮 (仅在图生视频页面显示) -->
-                <div class="vidu-reference-actions" id="vidu-reference-actions" style="display: none;">
-                    <button class="vidu-btn vidu-btn-reference" id="vidu-reference-btn">
-                        🎯 参考生视频
-                    </button>
-                    <div class="vidu-reference-hint">
-                        点击切换到参考生视频模式，自动选定主体并批量生成
-                    </div>
-                </div>
                 
                 <!-- 图片上传区域 (仅图生视频页面显示) -->
                 <div class="vidu-upload-section" id="vidu-upload-section" style="display: none;">
@@ -316,6 +304,10 @@ class VideuFloatingBall {
                     this.currentMode = 'img2video';
                     this.updateUIForPageType();
                     console.log('切换到图生视频模式');
+                    // 如果当前不在图生视频页面，则跳转
+                    if (this.pageType !== 'img2video') {
+                        window.location.href = 'https://www.vidu.cn/create/img2video';
+                    }
                 }
             });
         }
@@ -326,6 +318,10 @@ class VideuFloatingBall {
                     this.currentMode = 'reference';
                     this.updateUIForPageType();
                     console.log('切换到参考生视频模式');
+                    // 如果当前不在参考生视频页面，则跳转
+                    if (this.pageType !== 'reference') {
+                        window.location.href = 'https://www.vidu.cn/create/character2video';
+                    }
                 }
             });
         }

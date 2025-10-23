@@ -559,48 +559,6 @@
     animation: vidu-fadeIn 0.3s ease;
 }
 
-/* 参考生视频按钮样式 */
-.vidu-reference-actions {
-    margin-top: 15px;
-    padding: 15px;
-    background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
-    border: 1px solid #c3e6c3;
-    border-radius: 8px;
-    text-align: center;
-}
-
-.vidu-btn-reference {
-    background: linear-gradient(135deg, #4CAF50, #66BB6A);
-    color: white;
-    font-weight: 600;
-    padding: 12px 24px;
-    font-size: 14px;
-    border-radius: 6px;
-    border: none;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
-    width: 100%;
-    margin-bottom: 8px;
-}
-
-.vidu-btn-reference:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
-    background: linear-gradient(135deg, #45a049, #5cb85c);
-}
-
-.vidu-btn-reference:active {
-    transform: translateY(0);
-    box-shadow: 0 2px 6px rgba(76, 175, 80, 0.3);
-}
-
-.vidu-reference-hint {
-    font-size: 12px;
-    color: #2d5a2d;
-    line-height: 1.4;
-    margin: 0;
-}
 
 /* 视频生成设置区域 */
 .vidu-video-settings-section {
