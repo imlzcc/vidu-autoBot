@@ -37,39 +37,63 @@ class VideuFloatingBall {
         this.createFloatingBall();
         this.createFloatingPanel();
         this.bindEvents();
-        this.updateUIForPageType();
+        // 延迟更新UI，确保DOM元素已创建
+        setTimeout(() => {
+            this.updateUIForPageType();
+        }, 100);
         console.log('Vidu悬浮球插件已初始化');
     }
     
     updateUIForPageType() {
+        console.log('更新UI，当前页面类型:', this.pageType);
+        
         const pageTypeEl = document.getElementById('vidu-page-type');
         const uploadSection = document.getElementById('vidu-upload-section');
         const referenceSection = document.getElementById('vidu-reference-section');
         const referenceActions = document.getElementById('vidu-reference-actions');
         const imageCountEl = document.getElementById('vidu-image-count');
         
+        // 检查元素是否存在
+        if (!pageTypeEl) {
+            console.error('页面类型元素未找到');
+            return;
+        }
+        if (!uploadSection) {
+            console.error('上传区域元素未找到');
+            return;
+        }
+        if (!referenceSection) {
+            console.error('参考区域元素未找到');
+            return;
+        }
+        
         if (this.pageType === 'reference') {
+            console.log('设置为参考生视频模式');
             pageTypeEl.textContent = '参考生视频模式';
             pageTypeEl.style.color = '#4CAF50';
             uploadSection.style.display = 'none';
             referenceSection.style.display = 'block';
-            referenceActions.style.display = 'none'; // 在参考生视频页面隐藏快速按钮
-            imageCountEl.style.display = 'none';
+            if (referenceActions) referenceActions.style.display = 'none';
+            if (imageCountEl) imageCountEl.style.display = 'none';
         } else if (this.pageType === 'img2video') {
+            console.log('设置为图生视频模式');
             pageTypeEl.textContent = '图生视频模式';
             pageTypeEl.style.color = '#2196F3';
             uploadSection.style.display = 'block';
             referenceSection.style.display = 'none';
-            referenceActions.style.display = 'block'; // 在图生视频页面显示快速按钮
-            imageCountEl.style.display = 'inline';
+            if (referenceActions) referenceActions.style.display = 'block';
+            if (imageCountEl) imageCountEl.style.display = 'inline';
         } else {
+            console.log('设置为未知页面模式');
             pageTypeEl.textContent = '未知页面类型';
             pageTypeEl.style.color = '#FF9800';
             uploadSection.style.display = 'block';
             referenceSection.style.display = 'none';
-            referenceActions.style.display = 'block'; // 在未知页面也显示快速按钮
-            imageCountEl.style.display = 'inline';
+            if (referenceActions) referenceActions.style.display = 'block';
+            if (imageCountEl) imageCountEl.style.display = 'inline';
         }
+        
+        console.log('UI更新完成');
     }
     
     createFloatingBall() {
@@ -267,6 +291,16 @@ class VideuFloatingBall {
         this.floatingBall.addEventListener('click', () => {
             this.togglePanel();
         });
+        
+        // 页面类型指示器点击事件 - 手动刷新页面类型检测
+        const pageTypeEl = document.getElementById('vidu-page-type');
+        if (pageTypeEl) {
+            pageTypeEl.addEventListener('click', () => {
+                this.pageType = this.detectPageType();
+                this.updateUIForPageType();
+                console.log('手动刷新页面类型检测:', this.pageType);
+            });
+        }
         
         // 关闭面板
         this.floatingPanel.querySelector('.vidu-panel-close').addEventListener('click', () => {
