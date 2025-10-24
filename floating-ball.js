@@ -29,6 +29,8 @@ class VideuFloatingBall {
             return 'reference';
         } else if (url.includes('/create/img2video')) {
             return 'img2video';
+        } else if (url.includes('/create/text2video')) {
+            return 'text2video';
         }
         return 'unknown';
     }
@@ -74,10 +76,16 @@ class VideuFloatingBall {
         } else if (this.pageType === 'img2video') {
             pageTypeEl.textContent = '当前页面：图生视频';
             pageTypeEl.style.color = '#2196F3';
+        } else if (this.pageType === 'text2video') {
+            pageTypeEl.textContent = '当前页面：文生视频';
+            pageTypeEl.style.color = '#9C27B0';
         } else {
             pageTypeEl.textContent = '当前页面：未知类型';
             pageTypeEl.style.color = '#FF9800';
         }
+        
+        // 根据页面类型自动同步模式选择器
+        this.syncModeSelector();
         
         // 根据用户选择的模式更新UI
         if (this.currentMode === 'reference') {
@@ -90,9 +98,35 @@ class VideuFloatingBall {
             uploadSection.style.display = 'block';
             referenceSection.style.display = 'none';
             if (imageCountEl) imageCountEl.style.display = 'inline';
+        } else if (this.currentMode === 'text2video') {
+            console.log('显示文生视频模式界面');
+            uploadSection.style.display = 'none';
+            referenceSection.style.display = 'none';
+            if (imageCountEl) imageCountEl.style.display = 'none';
         }
         
         console.log('UI更新完成');
+    }
+    
+    syncModeSelector() {
+        // 根据页面类型自动设置模式选择器
+        const modeImg2Video = document.getElementById('vidu-mode-img2video');
+        const modeReference = document.getElementById('vidu-mode-reference');
+        const modeText2Video = document.getElementById('vidu-mode-text2video');
+        
+        if (this.pageType === 'reference' && modeReference) {
+            modeReference.checked = true;
+            this.currentMode = 'reference';
+            console.log('自动切换到参考生视频模式');
+        } else if (this.pageType === 'img2video' && modeImg2Video) {
+            modeImg2Video.checked = true;
+            this.currentMode = 'img2video';
+            console.log('自动切换到图生视频模式');
+        } else if (this.pageType === 'text2video' && modeText2Video) {
+            modeText2Video.checked = true;
+            this.currentMode = 'text2video';
+            console.log('自动切换到文生视频模式');
+        }
     }
     
     createFloatingBall() {
@@ -114,7 +148,7 @@ class VideuFloatingBall {
             <div class="vidu-panel-header">
                 <div class="vidu-title-section">
                     <span>Vidu批量视频生成</span>
-                    <div class="vidu-version">v3.0.0</div>
+                    <div class="vidu-version">v4.1.0</div>
                 </div>
                 <button class="vidu-panel-close">×</button>
             </div>
@@ -129,6 +163,10 @@ class VideuFloatingBall {
                         <label class="vidu-mode-option">
                             <input type="radio" name="vidu-mode" value="reference" id="vidu-mode-reference">
                             <span class="vidu-mode-label">参考生视频模式</span>
+                        </label>
+                        <label class="vidu-mode-option">
+                            <input type="radio" name="vidu-mode" value="text2video" id="vidu-mode-text2video">
+                            <span class="vidu-mode-label">文生视频模式</span>
                         </label>
                     </div>
                     <div class="vidu-page-type-indicator">
@@ -233,6 +271,18 @@ class VideuFloatingBall {
                 <div class="vidu-video-settings-section">
                     <div class="vidu-section-title">🎬 视频生成设置</div>
                     <div class="vidu-setting-item">
+                        <span class="vidu-setting-label">时长:</span>
+                        <select class="vidu-mode-select" id="vidu-video-duration">
+                            <option value="2">2秒</option>
+                            <option value="3">3秒</option>
+                            <option value="4">4秒</option>
+                            <option value="5" selected>5秒</option>
+                            <option value="6">6秒</option>
+                            <option value="7">7秒</option>
+                            <option value="8">8秒</option>
+                        </select>
+                    </div>
+                    <div class="vidu-setting-item">
                         <span class="vidu-setting-label">宽高比:</span>
                         <select class="vidu-mode-select" id="vidu-aspect-ratio">
                             <option value="9:16">9:16 (竖屏)</option>
@@ -297,6 +347,7 @@ class VideuFloatingBall {
         // 模式切换事件
         const modeImg2Video = document.getElementById('vidu-mode-img2video');
         const modeReference = document.getElementById('vidu-mode-reference');
+        const modeText2Video = document.getElementById('vidu-mode-text2video');
         
         if (modeImg2Video) {
             modeImg2Video.addEventListener('change', () => {
@@ -321,6 +372,20 @@ class VideuFloatingBall {
                     // 如果当前不在参考生视频页面，则跳转
                     if (this.pageType !== 'reference') {
                         window.location.href = 'https://www.vidu.cn/create/character2video';
+                    }
+                }
+            });
+        }
+        
+        if (modeText2Video) {
+            modeText2Video.addEventListener('change', () => {
+                if (modeText2Video.checked) {
+                    this.currentMode = 'text2video';
+                    this.updateUIForPageType();
+                    console.log('切换到文生视频模式');
+                    // 如果当前不在文生视频页面，则跳转
+                    if (this.pageType !== 'text2video') {
+                        window.location.href = 'https://www.vidu.cn/create/text2video';
                     }
                 }
             });
@@ -478,6 +543,16 @@ class VideuFloatingBall {
                 console.error(`设置元素未找到: ${id}`);
             }
         });
+        
+        // 视频时长选择事件
+        const videoDurationSelect = document.getElementById('vidu-video-duration');
+        if (videoDurationSelect) {
+            videoDurationSelect.addEventListener('change', () => {
+                this.updateSettings();
+            });
+        } else {
+            console.error('视频时长选择器未找到');
+        }
         
         // 错峰模式切换事件
         const offPeakModeToggle = document.getElementById('vidu-off-peak-mode');
@@ -693,8 +768,11 @@ class VideuFloatingBall {
         const hasPrompts = this.prompts.length > 0;
         let isReady = false;
         
-        if (this.pageType === 'reference') {
+        if (this.pageType === 'reference' || this.currentMode === 'reference') {
             // 参考生视频模式：只需要提示词
+            isReady = hasPrompts && !this.isProcessing;
+        } else if (this.pageType === 'text2video' || this.currentMode === 'text2video') {
+            // 文生视频模式：只需要提示词
             isReady = hasPrompts && !this.isProcessing;
         } else {
             // 图生视频模式：需要图片和提示词
@@ -706,7 +784,13 @@ class VideuFloatingBall {
             startBtn.disabled = !isReady;
         }
         
-        if (this.pageType === 'reference') {
+        if (this.pageType === 'reference' || this.currentMode === 'reference') {
+            if (hasPrompts) {
+                this.updateStatus(`准备就绪 - ${this.prompts.length} 个任务待处理`);
+            } else {
+                this.updateStatus('请输入提示词');
+            }
+        } else if (this.pageType === 'text2video' || this.currentMode === 'text2video') {
             if (hasPrompts) {
                 this.updateStatus(`准备就绪 - ${this.prompts.length} 个任务待处理`);
             } else {
@@ -739,6 +823,9 @@ class VideuFloatingBall {
         if (this.pageType === 'reference') {
             // 参考生视频模式：只需要提示词
             taskCount = this.prompts.length;
+        } else if (this.pageType === 'text2video') {
+            // 文生视频模式：只需要提示词
+            taskCount = this.prompts.length;
         } else {
             // 图生视频模式：需要图片和提示词
             taskCount = Math.min(this.selectedImages.length, this.prompts.length);
@@ -762,6 +849,9 @@ class VideuFloatingBall {
                 
                 if (this.pageType === 'reference') {
                     // 参考生视频模式：不需要图片
+                    this.logMessage(`处理任务 ${i + 1}/${taskCount}: ${prompt.substring(0, 30)}...`, 'info');
+                } else if (this.pageType === 'text2video') {
+                    // 文生视频模式：不需要图片
                     this.logMessage(`处理任务 ${i + 1}/${taskCount}: ${prompt.substring(0, 30)}...`, 'info');
                 } else {
                     // 图生视频模式：需要图片
@@ -809,6 +899,10 @@ class VideuFloatingBall {
                 // 参考生视频模式：先应用设置，再处理任务
                 await this.applyVideoSettings();
                 await this.processReferenceTask(prompt);
+            } else if (this.pageType === 'text2video') {
+                // 文生视频模式：先应用设置，再处理任务
+                await this.applyVideoSettings();
+                await this.processText2VideoTask(prompt);
             } else {
                 // 图生视频模式
                 await this.processImg2VideoTask(imageFile, prompt);
@@ -895,6 +989,41 @@ class VideuFloatingBall {
             
         } catch (error) {
             this.logMessage(`处理参考生视频任务失败: ${error.message}`, 'error');
+            throw error;
+        }
+    }
+    
+    async processText2VideoTask(prompt) {
+        try {
+            this.logMessage(`开始处理文生视频任务: ${prompt.substring(0, 30)}...`, 'info');
+            
+            // 1. 应用视频设置
+            this.logMessage('步骤1: 应用视频设置', 'info');
+            await this.applyVideoSettings();
+            await this.sleep(1000);
+            
+            // 2. 输入提示词
+            this.logMessage('步骤2: 输入提示词', 'info');
+            await this.inputPromptToMainPage(prompt);
+            await this.sleep(1000);
+            
+            // 3. 点击创作按钮
+            this.logMessage('步骤3: 点击创作按钮', 'info');
+            await this.clickMainCreateButton();
+            
+            // 4. 等待提交完成
+            this.logMessage('步骤4: 等待提交完成', 'info');
+            await this.waitForMainPageSubmission();
+            
+            this.logMessage(`任务完成: ${prompt.substring(0, 30)}...`, 'success');
+            
+            // 5. 清空内容，为下一个任务准备
+            this.logMessage('步骤5: 清空内容', 'info');
+            await this.clearMainPageContent();
+            await this.waitForPageReset();
+            
+        } catch (error) {
+            this.logMessage(`处理文生视频任务失败: ${error.message}`, 'error');
             throw error;
         }
     }
@@ -1568,6 +1697,7 @@ class VideuFloatingBall {
             waitTime: parseInt(document.getElementById('vidu-wait-time').value),
             checkInterval: parseInt(document.getElementById('vidu-check-interval').value),
             maxRetries: parseInt(document.getElementById('vidu-max-retries').value),
+            videoDuration: parseInt(document.getElementById('vidu-video-duration').value),
             aspectRatio: document.getElementById('vidu-aspect-ratio').value,
             offPeakMode: document.getElementById('vidu-off-peak-mode').checked,
             generationCount: parseInt(document.getElementById('vidu-generation-count').value)
@@ -1615,6 +1745,7 @@ class VideuFloatingBall {
             const waitTimeEl = document.getElementById('vidu-wait-time');
             const checkIntervalEl = document.getElementById('vidu-check-interval');
             const maxRetriesEl = document.getElementById('vidu-max-retries');
+            const videoDurationEl = document.getElementById('vidu-video-duration');
             const aspectRatioEl = document.getElementById('vidu-aspect-ratio');
             const offPeakModeEl = document.getElementById('vidu-off-peak-mode');
             const generationCountEl = document.getElementById('vidu-generation-count');
@@ -1624,6 +1755,7 @@ class VideuFloatingBall {
             if (waitTimeEl) waitTimeEl.value = this.settings.waitTime || 2;
             if (checkIntervalEl) checkIntervalEl.value = this.settings.checkInterval || 8;
             if (maxRetriesEl) maxRetriesEl.value = this.settings.maxRetries || 5;
+            if (videoDurationEl) videoDurationEl.value = this.settings.videoDuration || 5;
             if (aspectRatioEl) aspectRatioEl.value = this.settings.aspectRatio || '9:16';
             if (offPeakModeEl) offPeakModeEl.checked = this.settings.offPeakMode !== false;
             if (generationCountEl) generationCountEl.value = this.settings.generationCount || 1;
@@ -1694,48 +1826,6 @@ clearAll() {
     this.logMessage('已清空所有数据', 'info');
 }
 
-updateSettings() {
-    this.settings = {
-        processMode: document.getElementById('vidu-process-mode').value,
-        batchSize: parseInt(document.getElementById('vidu-batch-size').value),
-        waitTime: parseInt(document.getElementById('vidu-wait-time').value),
-        checkInterval: parseInt(document.getElementById('vidu-check-interval').value),
-        maxRetries: parseInt(document.getElementById('vidu-max-retries').value)
-    };
-
-    this.saveSettings();
-}
-
-saveSettings() {
-    if (typeof chrome !== 'undefined' && chrome.storage) {
-        chrome.storage.local.set({ videuSettings: this.settings });
-    } else {
-        // 降级到localStorage
-        localStorage.setItem('videuSettings', JSON.stringify(this.settings));
-    }
-}
-
-loadSettings() {
-    if (typeof chrome !== 'undefined' && chrome.storage) {
-        chrome.storage.local.get(['videuSettings'], (result) => {
-            if (result.videuSettings) {
-                this.settings = { ...this.settings, ...result.videuSettings };
-                this.updateSettingsUI();
-            }
-        });
-    } else {
-        // 降级到localStorage
-        try {
-            const saved = localStorage.getItem('videuSettings');
-            if (saved) {
-                this.settings = { ...this.settings, ...JSON.parse(saved) };
-                this.updateSettingsUI();
-            }
-        } catch (error) {
-            console.log('加载设置失败:', error);
-        }
-    }
-}
 
 updateSettingsUI() {
     // 延迟更新UI，确保DOM已加载
@@ -2012,15 +2102,41 @@ async waitForPageReset() {
         if (offPeakToggle) {
             this.logMessage(`找到错峰模式开关: ${offPeakToggle.tagName} ${offPeakToggle.className}`, 'info');
             
-            const isEnabled = offPeakToggle.getAttribute('aria-checked') === 'true' || 
-                             offPeakToggle.getAttribute('data-state') === 'checked' ||
-                             offPeakToggle.checked === true;
+            // 检查开关的当前状态
+            const ariaChecked = offPeakToggle.getAttribute('aria-checked');
+            const dataState = offPeakToggle.getAttribute('data-state');
+            const isChecked = offPeakToggle.checked;
+            
+            this.logMessage(`开关状态: aria-checked="${ariaChecked}", data-state="${dataState}", checked=${isChecked}`, 'info');
+            
+            // 判断是否已启用（根据你提供的HTML，unchecked表示未启用）
+            const isEnabled = ariaChecked === 'true' || 
+                             dataState === 'checked' ||
+                             isChecked === true;
+            
+            this.logMessage(`错峰模式当前状态: ${isEnabled ? '已启用' : '未启用'}`, 'info');
             
             if (!isEnabled) {
                 this.logMessage('尝试启用错峰模式...', 'info');
                 this.attemptClick(offPeakToggle);
-                await this.sleep(500);
-                this.logMessage('已启用错峰模式', 'success');
+                await this.sleep(1000); // 增加等待时间
+                
+                // 验证是否成功启用
+                const newAriaChecked = offPeakToggle.getAttribute('aria-checked');
+                const newDataState = offPeakToggle.getAttribute('data-state');
+                const newIsChecked = offPeakToggle.checked;
+                
+                this.logMessage(`点击后状态: aria-checked="${newAriaChecked}", data-state="${newDataState}", checked=${newIsChecked}`, 'info');
+                
+                const nowEnabled = newAriaChecked === 'true' || 
+                                 newDataState === 'checked' ||
+                                 newIsChecked === true;
+                
+                if (nowEnabled) {
+                    this.logMessage('已成功启用错峰模式', 'success');
+                } else {
+                    this.logMessage('启用错峰模式可能失败，请检查', 'warning');
+                }
             } else {
                 this.logMessage('错峰模式已启用', 'info');
             }
@@ -2032,8 +2148,13 @@ async waitForPageReset() {
     findOffPeakToggle() {
         this.logMessage('开始查找错峰模式开关...', 'info');
         
-        // 1. 查找所有可能的开关元素 (button[role="switch"])
-        const allSwitches = this.deepQuerySelectorAll(['button[role="switch"]']).filter(el => {
+        // 1. 查找所有可能的开关元素
+        const allSwitches = this.deepQuerySelectorAll([
+            'button[role="switch"]',
+            'button[aria-checked]',
+            'button[data-state]',
+            'input[type="checkbox"]'
+        ]).filter(el => {
             if (this.isInsideOurUI(el)) return false; // 排除插件自身的UI元素
             const rect = el.getBoundingClientRect();
             // 确保开关在左侧主页面区域
@@ -2062,6 +2183,22 @@ async waitForPageReset() {
                 this.logMessage(`找到错峰模式开关: ${toggle.tagName} ${toggle.className}`, 'info');
                 this.logMessage(`开关状态: aria-checked="${toggle.getAttribute('aria-checked')}" data-state="${toggle.getAttribute('data-state')}"`, 'info');
                 return toggle;
+            }
+        }
+
+        // 3. 如果没找到，尝试更宽泛的搜索
+        this.logMessage('尝试更宽泛的搜索...', 'info');
+        const allButtons = this.deepQuerySelectorAll(['button']).filter(el => {
+            if (this.isInsideOurUI(el)) return false;
+            const rect = el.getBoundingClientRect();
+            return rect.left < window.innerWidth * 0.7;
+        });
+
+        for (const button of allButtons) {
+            const text = (button.textContent || button.innerText || '').trim();
+            if (text.includes('错峰模式') || text.includes('错峰')) {
+                this.logMessage(`通过文本找到错峰模式开关: ${button.tagName} ${button.className}`, 'info');
+                return button;
             }
         }
 
@@ -2122,11 +2259,15 @@ async waitForPageReset() {
         try {
             this.logMessage('开始应用视频生成设置...', 'info');
             
-            // 1. 设置宽高比
+            // 1. 设置时长
+            this.logMessage(`尝试设置时长为: ${this.settings.videoDuration}秒`, 'info');
+            await this.setVideoDuration(this.settings.videoDuration);
+            
+            // 2. 设置宽高比
             this.logMessage(`尝试设置宽高比为: ${this.settings.aspectRatio}`, 'info');
             await this.setAspectRatio(this.settings.aspectRatio);
             
-            // 2. 设置错峰模式
+            // 3. 设置错峰模式
             if (this.settings.offPeakMode) {
                 this.logMessage('尝试启用错峰模式', 'info');
                 await this.enableOffPeakMode();
@@ -2134,14 +2275,79 @@ async waitForPageReset() {
                 this.logMessage('错峰模式已关闭', 'info');
             }
             
-            // 3. 设置生成数量
+            // 4. 设置生成数量
             this.logMessage(`尝试设置生成数量为: ${this.settings.generationCount}`, 'info');
             await this.setGenerationCount(this.settings.generationCount);
             
-            this.logMessage(`视频设置应用完成: 宽高比=${this.settings.aspectRatio}, 错峰模式=${this.settings.offPeakMode}, 数量=${this.settings.generationCount}`, 'success');
+            this.logMessage(`视频设置应用完成: 时长=${this.settings.videoDuration}秒, 宽高比=${this.settings.aspectRatio}, 错峰模式=${this.settings.offPeakMode}, 数量=${this.settings.generationCount}`, 'success');
             
         } catch (error) {
             this.logMessage(`应用视频设置失败: ${error.message}`, 'error');
+        }
+    }
+    
+    // 设置视频时长
+    async setVideoDuration(duration) {
+        this.logMessage(`开始查找时长设置控件: ${duration}秒`, 'info');
+        
+        // 查找时长按钮组 - 根据HTML结构，这些按钮在时长区域内
+        const durationButtons = this.deepQuerySelectorAll([
+            'button[role="radio"]',
+            'button[data-radix-collection-item]'
+        ]).filter(el => {
+            if (this.isInsideOurUI(el)) return false;
+            
+            const rect = el.getBoundingClientRect();
+            const buttonText = (el.textContent || el.innerText || '').trim();
+            
+            // 检查是否在左侧主页面区域
+            const isInLeftPanel = rect.left < window.innerWidth * 0.7;
+            
+            // 检查是否是时长按钮（2, 3, 4, 5s, 6, 7, 8）
+            const isDurationButton = /^[2-8](s)?$/.test(buttonText);
+            
+            return isInLeftPanel && isDurationButton;
+        });
+        
+        this.logMessage(`找到 ${durationButtons.length} 个时长按钮`, 'info');
+        
+        // 查找对应时长的按钮
+        const targetButton = durationButtons.find(button => {
+            const buttonText = (button.textContent || button.innerText || '').trim();
+            this.logMessage(`检查按钮: "${buttonText}"`, 'info');
+            return buttonText === duration.toString() || 
+                   buttonText === duration + 's';
+        });
+        
+        if (targetButton) {
+            this.logMessage(`找到目标时长按钮: ${targetButton.textContent}`, 'info');
+            
+            // 检查是否已经选中
+            const isSelected = targetButton.getAttribute('data-state') === 'on' || 
+                              targetButton.getAttribute('aria-checked') === 'true';
+            
+            this.logMessage(`按钮当前状态: data-state="${targetButton.getAttribute('data-state')}", aria-checked="${targetButton.getAttribute('aria-checked')}"`, 'info');
+            
+            if (!isSelected) {
+                this.logMessage(`尝试点击时长按钮: ${targetButton.textContent}`, 'info');
+                this.attemptClick(targetButton);
+                await this.sleep(1000);
+                
+                // 验证是否成功选中
+                const newState = targetButton.getAttribute('data-state');
+                const newAriaChecked = targetButton.getAttribute('aria-checked');
+                this.logMessage(`点击后状态: data-state="${newState}", aria-checked="${newAriaChecked}"`, 'info');
+                
+                if (newState === 'on' || newAriaChecked === 'true') {
+                    this.logMessage(`已成功设置时长为 ${duration} 秒`, 'success');
+                } else {
+                    this.logMessage(`设置时长可能失败，请检查`, 'warning');
+                }
+            } else {
+                this.logMessage(`时长已经是 ${duration} 秒`, 'info');
+            }
+        } else {
+            this.logMessage(`未找到时长 ${duration} 秒的按钮`, 'warning');
         }
     }
     
@@ -2258,6 +2464,9 @@ async waitForPageReset() {
         
         // 根据实际HTML结构查找提示词输入框
         const promptElement = this.deepQuerySelectorAll([
+            'textarea[maxlength="1500"]',
+            'textarea[required]',
+            'textarea',
             'div[contenteditable="true"]',
             'div[class*="tiptap"]',
             'div[class*="ProseMirror"]'
@@ -2269,6 +2478,11 @@ async waitForPageReset() {
             
             // 检查是否在左侧主页面区域
             const isInLeftPanel = rect.left < window.innerWidth * 0.7;
+            
+            // 对于textarea元素，直接返回
+            if (el.tagName === 'TEXTAREA') {
+                return isInLeftPanel;
+            }
             
             // 检查是否是tiptap编辑器
             const isTiptapEditor = (

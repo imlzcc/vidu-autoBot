@@ -10,24 +10,47 @@ class VideuBatchProcessor {
         this.isProcessing = false;
         this.currentProgress = 0;
         this.totalTasks = 0;
-        this.pageType = this.detectPageType();
+        this.pageType = 'unknown'; // 初始化为unknown
         
         this.initializeElements();
         this.bindEvents();
         this.loadSettings();
         this.toggleProcessMode(); // 初始化显示模式
-        this.updateUIForPageType();
+        
+        // 立即执行页面检测和UI更新
+        this.detectAndUpdateUI();
+    }
+    
+    async detectAndUpdateUI() {
+        try {
+            console.log('开始检测页面类型...');
+            this.pageType = await this.detectPageType();
+            console.log('检测到的页面类型:', this.pageType);
+            this.updateUIForPageType();
+        } catch (error) {
+            console.error('页面检测失败:', error);
+            this.pageType = 'unknown';
+            this.updateUIForPageType();
+        }
     }
     
     detectPageType() {
         return new Promise((resolve) => {
             chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
                 const url = tabs[0]?.url || '';
+                console.log('检测页面URL:', url);
+                
                 if (url.includes('/create/reference')) {
+                    console.log('检测到参考生视频页面');
                     resolve('reference');
                 } else if (url.includes('/create/img2video')) {
+                    console.log('检测到图生视频页面');
                     resolve('img2video');
+                } else if (url.includes('/create/text2video')) {
+                    console.log('检测到文生视频页面');
+                    resolve('text2video');
                 } else {
+                    console.log('未检测到支持的页面类型');
                     resolve('unknown');
                 }
             });
@@ -37,9 +60,14 @@ class VideuBatchProcessor {
     initializeElements() {
         this.elements = {
             pageType: document.getElementById('pageType'),
+            img2videoTab: document.getElementById('img2videoTab'),
+            referenceTab: document.getElementById('referenceTab'),
+            text2videoTab: document.getElementById('text2videoTab'),
             img2videoSection: document.getElementById('img2videoSection'),
             filePreviewSection: document.getElementById('filePreviewSection'),
             referenceSection: document.getElementById('referenceSection'),
+            text2videoSection: document.getElementById('text2videoSection'),
+            videoSettingsSection: document.getElementById('videoSettingsSection'),
             selectFolder: document.getElementById('selectFolder'),
             folderPath: document.getElementById('folderPath'),
             imageList: document.getElementById('imageList'),
@@ -50,6 +78,10 @@ class VideuBatchProcessor {
             promptCount: document.getElementById('promptCount'),
             imageCount: document.getElementById('imageCount'),
             taskCount: document.getElementById('taskCount'),
+            videoDuration: document.getElementById('videoDuration'),
+            videoAspectRatio: document.getElementById('videoAspectRatio'),
+            videoQuantity: document.getElementById('videoQuantity'),
+            offPeakMode: document.getElementById('offPeakMode'),
             processMode: document.getElementById('processMode'),
             queueSettings: document.getElementById('queueSettings'),
             smartSettings: document.getElementById('smartSettings'),
@@ -64,6 +96,13 @@ class VideuBatchProcessor {
             stopProcess: document.getElementById('stopProcess'),
             clearLog: document.getElementById('clearLog')
         };
+        
+        // 调试信息
+        console.log('Tab元素初始化:', {
+            img2videoTab: !!this.elements.img2videoTab,
+            referenceTab: !!this.elements.referenceTab,
+            text2videoTab: !!this.elements.text2videoTab
+        });
     }
     
     bindEvents() {
@@ -71,6 +110,11 @@ class VideuBatchProcessor {
         this.elements.startProcess.addEventListener('click', () => this.startProcessing());
         this.elements.stopProcess.addEventListener('click', () => this.stopProcessing());
         this.elements.clearLog.addEventListener('click', () => this.clearLog());
+        
+        // Tab切换事件
+        this.elements.img2videoTab.addEventListener('click', () => this.switchTab('img2video'));
+        this.elements.referenceTab.addEventListener('click', () => this.switchTab('reference'));
+        this.elements.text2videoTab.addEventListener('click', () => this.switchTab('text2video'));
         
         // 提示词相关事件
         this.elements.promptTextarea.addEventListener('input', () => this.updatePrompts());
@@ -82,7 +126,8 @@ class VideuBatchProcessor {
         
         // 保存设置
         [this.elements.processMode, this.elements.batchSize, this.elements.waitTime, 
-         this.elements.checkInterval, this.elements.maxRetries].forEach(element => {
+         this.elements.checkInterval, this.elements.maxRetries, this.elements.videoDuration,
+         this.elements.videoAspectRatio, this.elements.videoQuantity, this.elements.offPeakMode].forEach(element => {
             element.addEventListener('change', () => this.saveSettings());
         });
     }
@@ -327,7 +372,13 @@ class VideuBatchProcessor {
             batchSize: parseInt(this.elements.batchSize.value),
             waitTime: parseInt(this.elements.waitTime.value),
             checkInterval: parseInt(this.elements.checkInterval.value),
-            maxRetries: parseInt(this.elements.maxRetries.value)
+            maxRetries: parseInt(this.elements.maxRetries.value),
+            videoSettings: {
+                duration: this.elements.videoDuration.value,
+                aspectRatio: this.elements.videoAspectRatio.value,
+                quantity: parseInt(this.elements.videoQuantity.value),
+                offPeakMode: this.elements.offPeakMode.checked
+            }
         };
         
         chrome.storage.local.set({ settings: settings });
@@ -342,24 +393,48 @@ class VideuBatchProcessor {
                 this.elements.waitTime.value = settings.waitTime || 2;
                 this.elements.checkInterval.value = settings.checkInterval || 8;
                 this.elements.maxRetries.value = settings.maxRetries || 5;
+                
+                // 加载视频设置
+                if (settings.videoSettings) {
+                    this.elements.videoDuration.value = settings.videoSettings.duration || '8';
+                    this.elements.videoAspectRatio.value = settings.videoSettings.aspectRatio || '9:16';
+                    this.elements.videoQuantity.value = settings.videoSettings.quantity || 1;
+                    this.elements.offPeakMode.checked = settings.videoSettings.offPeakMode !== false;
+                }
             }
         });
     }
     
-    async updateUIForPageType() {
-        const pageType = await this.pageType;
+    updateUIForPageType() {
+        const pageType = this.pageType;
+        console.log('更新UI，页面类型:', pageType);
+        
+        // 确保所有元素都存在
+        if (!this.elements.pageType || !this.elements.img2videoTab || !this.elements.referenceTab || !this.elements.text2videoTab) {
+            console.error('关键元素未找到，无法更新UI');
+            return;
+        }
+        
         const pageTypeEl = this.elements.pageType;
         const img2videoSection = this.elements.img2videoSection;
         const filePreviewSection = this.elements.filePreviewSection;
         const referenceSection = this.elements.referenceSection;
+        const text2videoSection = this.elements.text2videoSection;
+        const videoSettingsSection = this.elements.videoSettingsSection;
         const imageCountEl = this.elements.imageCount;
         
+        // 首先设置激活的tab
+        this.setActiveTab(pageType);
+        
+        // 然后显示/隐藏对应的内容区域
         if (pageType === 'reference') {
             pageTypeEl.textContent = '参考生视频模式';
             pageTypeEl.style.color = '#4CAF50';
             img2videoSection.style.display = 'none';
             filePreviewSection.style.display = 'none';
             referenceSection.style.display = 'block';
+            text2videoSection.style.display = 'none';
+            videoSettingsSection.style.display = 'none';
             imageCountEl.style.display = 'none';
         } else if (pageType === 'img2video') {
             pageTypeEl.textContent = '图生视频模式';
@@ -367,14 +442,98 @@ class VideuBatchProcessor {
             img2videoSection.style.display = 'block';
             filePreviewSection.style.display = 'block';
             referenceSection.style.display = 'none';
+            text2videoSection.style.display = 'none';
+            videoSettingsSection.style.display = 'none';
             imageCountEl.style.display = 'inline';
+        } else if (pageType === 'text2video') {
+            pageTypeEl.textContent = '文生视频模式';
+            pageTypeEl.style.color = '#9C27B0';
+            img2videoSection.style.display = 'none';
+            filePreviewSection.style.display = 'none';
+            referenceSection.style.display = 'none';
+            text2videoSection.style.display = 'block';
+            videoSettingsSection.style.display = 'block';
+            imageCountEl.style.display = 'none';
         } else {
             pageTypeEl.textContent = '未知页面类型';
             pageTypeEl.style.color = '#FF9800';
             img2videoSection.style.display = 'block';
             filePreviewSection.style.display = 'block';
             referenceSection.style.display = 'none';
+            text2videoSection.style.display = 'none';
+            videoSettingsSection.style.display = 'none';
             imageCountEl.style.display = 'inline';
+        }
+        
+        console.log('UI更新完成');
+    }
+    
+    setActiveTab(pageType) {
+        console.log('设置激活tab，页面类型:', pageType);
+        
+        // 确保tab元素存在
+        if (!this.elements.img2videoTab || !this.elements.referenceTab || !this.elements.text2videoTab) {
+            console.error('Tab元素不存在，无法设置激活状态');
+            return;
+        }
+        
+        // 移除所有tab的active类
+        this.elements.img2videoTab.classList.remove('active');
+        this.elements.referenceTab.classList.remove('active');
+        this.elements.text2videoTab.classList.remove('active');
+        
+        // 根据页面类型设置对应的tab为激活状态
+        if (pageType === 'reference') {
+            this.elements.referenceTab.classList.add('active');
+            console.log('激活参考生视频tab');
+        } else if (pageType === 'img2video') {
+            this.elements.img2videoTab.classList.add('active');
+            console.log('激活图生视频tab');
+        } else if (pageType === 'text2video') {
+            this.elements.text2videoTab.classList.add('active');
+            console.log('激活文生视频tab');
+        } else {
+            this.elements.img2videoTab.classList.add('active');
+            console.log('激活默认图生视频tab');
+        }
+    }
+    
+    async switchTab(tabType) {
+        // 设置当前选中的tab
+        this.elements.img2videoTab.classList.remove('active');
+        this.elements.referenceTab.classList.remove('active');
+        this.elements.text2videoTab.classList.remove('active');
+        
+        if (tabType === 'img2video') {
+            this.elements.img2videoTab.classList.add('active');
+        } else if (tabType === 'reference') {
+            this.elements.referenceTab.classList.add('active');
+        } else if (tabType === 'text2video') {
+            this.elements.text2videoTab.classList.add('active');
+        }
+        
+        // 跳转到对应的页面
+        const urls = {
+            'img2video': 'https://www.vidu.cn/create/img2video',
+            'reference': 'https://www.vidu.cn/create/reference',
+            'text2video': 'https://www.vidu.cn/create/text2video'
+        };
+        
+        if (urls[tabType]) {
+            try {
+                // 获取当前活动标签页
+                const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+                const currentTab = tabs[0];
+                
+                // 跳转到新页面
+                await chrome.tabs.update(currentTab.id, { url: urls[tabType] });
+                
+                // 关闭popup
+                window.close();
+            } catch (error) {
+                console.error('页面跳转失败:', error);
+                this.logMessage('页面跳转失败: ' + error.message, 'error');
+            }
         }
     }
     
@@ -411,15 +570,16 @@ class VideuBatchProcessor {
         this.logMessage('已清空提示词', 'info');
     }
     
-    updateCounts() {
+    async     updateCounts() {
         const promptCount = this.prompts.length;
         const imageCount = this.selectedFiles.images.length;
+        const pageType = this.pageType;
         
         this.elements.promptCount.textContent = promptCount;
         this.elements.imageCount.textContent = imageCount;
         
-        if (this.pageType === 'reference') {
-            // 参考生视频模式：任务数等于提示词数
+        if (pageType === 'reference' || pageType === 'text2video') {
+            // 参考生视频模式和文生视频模式：任务数等于提示词数
             const taskCount = promptCount;
             this.elements.taskCount.textContent = taskCount;
         } else {
@@ -429,14 +589,14 @@ class VideuBatchProcessor {
         }
     }
     
-    async checkReadyToProcess() {
-        const pageType = await this.pageType;
+    checkReadyToProcess() {
+        const pageType = this.pageType;
         const hasImages = this.selectedFiles.images.length > 0;
         const hasPrompts = this.prompts.length > 0;
         let isReady = false;
         
-        if (pageType === 'reference') {
-            // 参考生视频模式：只需要提示词
+        if (pageType === 'reference' || pageType === 'text2video') {
+            // 参考生视频模式和文生视频模式：只需要提示词
             isReady = hasPrompts && !this.isProcessing;
         } else {
             // 图生视频模式：需要图片和提示词
@@ -446,6 +606,14 @@ class VideuBatchProcessor {
         this.elements.startProcess.disabled = !isReady;
         
         if (pageType === 'reference') {
+            if (hasPrompts) {
+                const mode = this.elements.processMode.value;
+                const modeText = mode === 'queue' ? '排队模式' : '智能检测模式';
+                this.updateStatus(`准备就绪 (${modeText}) - ${this.prompts.length} 个提示词待处理`);
+            } else {
+                this.updateStatus('请输入提示词');
+            }
+        } else if (pageType === 'text2video') {
             if (hasPrompts) {
                 const mode = this.elements.processMode.value;
                 const modeText = mode === 'queue' ? '排队模式' : '智能检测模式';
@@ -477,7 +645,7 @@ class VideuBatchProcessor {
         this.elements.stopProcess.disabled = false;
         
         try {
-            const pageType = await this.pageType;
+            const pageType = this.pageType;
             let processData;
             
             if (pageType === 'reference') {
@@ -491,6 +659,26 @@ class VideuBatchProcessor {
                         waitTime: parseInt(this.elements.waitTime.value),
                         checkInterval: parseInt(this.elements.checkInterval.value),
                         maxRetries: parseInt(this.elements.maxRetries.value)
+                    }
+                };
+                this.totalTasks = this.prompts.length;
+            } else if (pageType === 'text2video') {
+                // 文生视频模式：只需要提示词，但包含视频设置
+                processData = {
+                    images: [], // 文生视频模式不需要图片
+                    prompts: this.prompts,
+                    settings: {
+                        processMode: this.elements.processMode.value,
+                        batchSize: parseInt(this.elements.batchSize.value),
+                        waitTime: parseInt(this.elements.waitTime.value),
+                        checkInterval: parseInt(this.elements.checkInterval.value),
+                        maxRetries: parseInt(this.elements.maxRetries.value),
+                        videoSettings: {
+                            duration: this.elements.videoDuration.value,
+                            aspectRatio: this.elements.videoAspectRatio.value,
+                            quantity: parseInt(this.elements.videoQuantity.value),
+                            offPeakMode: this.elements.offPeakMode.checked
+                        }
                     }
                 };
                 this.totalTasks = this.prompts.length;
@@ -538,5 +726,17 @@ class VideuBatchProcessor {
 
 // 初始化应用
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM加载完成，开始初始化插件');
     new VideuBatchProcessor();
 });
+
+// 备用初始化（如果DOMContentLoaded已经触发）
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log('DOM加载完成，开始初始化插件');
+        new VideuBatchProcessor();
+    });
+} else {
+    console.log('DOM已加载，立即初始化插件');
+    new VideuBatchProcessor();
+}

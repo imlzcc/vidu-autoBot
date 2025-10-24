@@ -24,6 +24,9 @@ class VideuPageController {
         } else if (url.includes('/create/img2video')) {
             console.log('检测到图生视频页面');
             return 'img2video';
+        } else if (url.includes('/create/text2video')) {
+            console.log('检测到文生视频页面');
+            return 'text2video';
         }
         
         console.log('未检测到支持的页面类型');
@@ -130,6 +133,8 @@ class VideuPageController {
     async processSingleTask(task) {
         if (this.pageType === 'reference') {
             await this.processReferenceTask(task);
+        } else if (this.pageType === 'text2video') {
+            await this.processText2VideoTask(task);
         } else {
             await this.processImg2VideoTask(task);
         }
@@ -173,6 +178,27 @@ class VideuPageController {
         await this.waitForSubmissionStart();
         
         // 7. 清空内容，为下一个任务准备
+        await this.clickClearButton();
+        await this.waitForPageReset();
+    }
+    
+    async processText2VideoTask(task) {
+        // 1. 切换到文生视频标签页
+        await this.switchToText2VideoTab();
+        
+        // 2. 配置视频设置
+        await this.configureVideoSettings();
+        
+        // 3. 输入Prompt
+        await this.inputPrompt(task.prompt);
+        
+        // 4. 使用智能检测点击创作按钮
+        await this.clickCreateButtonWithSmartDetection();
+        
+        // 5. 确认已提交
+        await this.waitForSubmissionStart();
+        
+        // 6. 清空内容，为下一个任务准备
         await this.clickClearButton();
         await this.waitForPageReset();
     }
@@ -1138,6 +1164,22 @@ class VideuPageController {
         }
     }
     
+    // 文生视频页面专用方法
+    async switchToText2VideoTab() {
+        if (this.pageType !== 'text2video') {
+            console.log('当前页面不是文生视频页面，无需切换标签');
+            return;
+        }
+        
+        // 查找并点击"文生视频"标签
+        const text2videoTab = this.findText2VideoTab();
+        if (text2videoTab) {
+            this.attemptClick(text2videoTab);
+            await this.sleep(1000);
+            console.log('已切换到文生视频标签');
+        }
+    }
+    
     findReferenceTab() {
         const tabs = this.deepQuerySelectorAll([
             'button[aria-selected]',
@@ -1148,6 +1190,22 @@ class VideuPageController {
         for (const tab of tabs) {
             const text = (tab.textContent || tab.innerText || '').trim();
             if (text.includes('参考生视频') || text.includes('参考')) {
+                return tab;
+            }
+        }
+        return null;
+    }
+    
+    findText2VideoTab() {
+        const tabs = this.deepQuerySelectorAll([
+            'button[aria-selected]',
+            'button[role="tab"]',
+            'div[role="tab"]'
+        ]);
+        
+        for (const tab of tabs) {
+            const text = (tab.textContent || tab.innerText || '').trim();
+            if (text.includes('文生视频') || text.includes('文生')) {
                 return tab;
             }
         }
@@ -1199,6 +1257,50 @@ class VideuPageController {
         }
     }
     
+    async configureVideoSettings() {
+        // 配置视频设置
+        if (this.settings.videoSettings) {
+            const { duration, aspectRatio, quantity, offPeakMode } = this.settings.videoSettings;
+            
+            // 设置时长
+            if (duration) {
+                await this.setVideoDuration(duration);
+            }
+            
+            // 设置宽高比
+            if (aspectRatio) {
+                await this.setVideoAspectRatio(aspectRatio);
+            }
+            
+            // 设置数量
+            if (quantity) {
+                await this.setVideoQuantity(quantity);
+            }
+            
+            // 设置错峰模式
+            if (offPeakMode) {
+                await this.enableOffPeakMode();
+            }
+        } else {
+            // 如果没有videoSettings，使用主设置
+            if (this.settings.videoDuration) {
+                await this.setVideoDuration(this.settings.videoDuration);
+            }
+            
+            if (this.settings.aspectRatio) {
+                await this.setVideoAspectRatio(this.settings.aspectRatio);
+            }
+            
+            if (this.settings.generationCount) {
+                await this.setVideoQuantity(this.settings.generationCount);
+            }
+            
+            if (this.settings.offPeakMode) {
+                await this.enableOffPeakMode();
+            }
+        }
+    }
+    
     findOffPeakToggle() {
         const toggles = this.deepQuerySelectorAll([
             'button[role="switch"]',
@@ -1212,6 +1314,147 @@ class VideuPageController {
                 const text = (parent.textContent || parent.innerText || '').trim();
                 if (text.includes('错峰') || text.includes('错峰模式')) {
                     return toggle;
+                }
+            }
+        }
+        return null;
+    }
+    
+    async setVideoDuration(duration) {
+        const durationButton = this.findVideoDurationButton(duration);
+        if (durationButton) {
+            // 检查是否已经选中
+            const isSelected = durationButton.getAttribute('data-state') === 'on' || 
+                              durationButton.getAttribute('aria-checked') === 'true';
+            if (!isSelected) {
+                this.attemptClick(durationButton);
+                await this.sleep(500);
+                console.log(`已设置视频时长为 ${duration} 秒`);
+            } else {
+                console.log(`视频时长已经是 ${duration} 秒`);
+            }
+        } else {
+            console.log(`未找到时长 ${duration} 秒的按钮`);
+        }
+    }
+    
+    findVideoDurationButton(duration) {
+        // 查找时长按钮组
+        const durationButtons = this.deepQuerySelectorAll([
+            'button[role="radio"]',
+            'button[data-radix-collection-item]'
+        ]);
+        
+        for (const button of durationButtons) {
+            const buttonText = (button.textContent || button.innerText || '').trim();
+            const parent = button.parentElement || button.closest('div');
+            if (parent) {
+                const parentText = (parent.textContent || parent.innerText || '').trim();
+                // 检查是否在时长区域
+                if (parentText.includes('时长') || parentText.includes('秒')) {
+                    // 检查按钮文本是否匹配
+                    if (buttonText === duration.toString() || 
+                        buttonText === duration + 's' || 
+                        buttonText === duration + '秒') {
+                        return button;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+    
+    async setVideoAspectRatio(aspectRatio) {
+        const aspectRatioButton = this.findVideoAspectRatioButton();
+        if (aspectRatioButton) {
+            // 点击打开下拉菜单
+            this.attemptClick(aspectRatioButton);
+            await this.sleep(1000);
+            
+            // 查找并点击对应的选项
+            const option = this.findAspectRatioOption(aspectRatio);
+            if (option) {
+                this.attemptClick(option);
+                await this.sleep(500);
+                console.log(`已设置视频宽高比为 ${aspectRatio}`);
+            } else {
+                console.log(`未找到宽高比选项 ${aspectRatio}`);
+            }
+        } else {
+            console.log('未找到宽高比选择器');
+        }
+    }
+    
+    findVideoAspectRatioButton() {
+        const buttons = this.deepQuerySelectorAll([
+            'button[role="combobox"]'
+        ]);
+        
+        for (const button of buttons) {
+            const parent = button.parentElement || button.closest('div');
+            if (parent) {
+                const text = (parent.textContent || parent.innerText || '').trim();
+                if (text.includes('宽高比') || text.includes('比例')) {
+                    return button;
+                }
+            }
+        }
+        return null;
+    }
+    
+    findAspectRatioOption(aspectRatio) {
+        // 查找下拉菜单中的选项
+        const options = this.deepQuerySelectorAll([
+            'div[role="option"]',
+            'button[role="option"]',
+            'div[data-radix-collection-item]'
+        ]);
+        
+        for (const option of options) {
+            const text = (option.textContent || option.innerText || '').trim();
+            if (text.includes(aspectRatio)) {
+                return option;
+            }
+        }
+        return null;
+    }
+    
+    async setVideoQuantity(quantity) {
+        const quantityButton = this.findVideoQuantityButton(quantity);
+        if (quantityButton) {
+            // 检查是否已经选中
+            const isSelected = quantityButton.getAttribute('data-state') === 'on' || 
+                              quantityButton.getAttribute('aria-checked') === 'true';
+            if (!isSelected) {
+                this.attemptClick(quantityButton);
+                await this.sleep(500);
+                console.log(`已设置视频数量为 ${quantity}`);
+            } else {
+                console.log(`视频数量已经是 ${quantity}`);
+            }
+        } else {
+            console.log(`未找到数量 ${quantity} 的按钮`);
+        }
+    }
+    
+    findVideoQuantityButton(quantity) {
+        // 查找数量按钮组
+        const quantityButtons = this.deepQuerySelectorAll([
+            'button[role="radio"]',
+            'button[data-radix-collection-item]'
+        ]);
+        
+        for (const button of quantityButtons) {
+            const buttonText = (button.textContent || button.innerText || '').trim();
+            const parent = button.parentElement || button.closest('div');
+            if (parent) {
+                const parentText = (parent.textContent || parent.innerText || '').trim();
+                // 检查是否在数量区域
+                if (parentText.includes('数量') || parentText.includes('个')) {
+                    // 检查按钮文本是否匹配
+                    if (buttonText === quantity.toString()) {
+                        return button;
+                    }
                 }
             }
         }
@@ -1247,9 +1490,8 @@ class VideuPageController {
     
     queryPromptInputElement() {
         const selectors = [
-            '#mentions-textarea .tiptap.ProseMirror',
             'textarea[maxlength="1500"]',
-            'textarea[placeholder]',
+            'textarea[required]',
             'textarea',
             '[contenteditable="true"]',
             '[role="textbox"]'
@@ -1261,14 +1503,8 @@ class VideuPageController {
     // 重写创作按钮查找方法
     findCreateButton() {
         const selectors = [
-            '#submit-button',
             'button',
-            '[role="button"]',
-            'a',
-            'div[role="button"]',
-            'div[class*="Button"]',
-            'div[class*="create"]',
-            'div[class*="submit"]'
+            '[role="button"]'
         ];
         const nodes = this.deepQuerySelectorAll(selectors);
         for (const node of nodes) {

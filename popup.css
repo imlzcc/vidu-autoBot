@@ -300,6 +300,47 @@ body {
     background: #e9ecef;
 }
 
+/* Tab导航样式 */
+.tab-navigation {
+    display: flex;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #e9ecef;
+    background: #f8f9fa;
+    border-radius: 8px 8px 0 0;
+    overflow: hidden;
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 12px 4px;
+    border: none;
+    background: transparent;
+    color: #666;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-bottom: 3px solid transparent;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.tab-btn:hover {
+    background: #e9ecef;
+    color: #333;
+}
+
+.tab-btn.active {
+    background: #667eea;
+    color: white;
+    border-bottom-color: #4c63d2;
+}
+
+.tab-btn.active:hover {
+    background: #5a6fd8;
+}
+
 /* 参考生视频模式样式 */
 .reference-info {
     background: #e8f5e8;
@@ -335,6 +376,77 @@ body {
     border-radius: 4px;
     font-size: 12px;
     color: #856404;
+}
+
+/* 文生视频模式样式 */
+.text2video-info {
+    background: #e3f2fd;
+    border: 1px solid #bbdefb;
+    border-radius: 6px;
+    padding: 12px;
+    margin-top: 10px;
+}
+
+.text2video-info p {
+    font-size: 13px;
+    color: #1565c0;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.text2video-info ul {
+    margin: 8px 0;
+    padding-left: 20px;
+}
+
+.text2video-info li {
+    font-size: 12px;
+    color: #1565c0;
+    margin-bottom: 4px;
+}
+
+.text2video-note {
+    margin-top: 10px;
+    padding: 8px;
+    background: #fff3e0;
+    border: 1px solid #ffcc02;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #e65100;
+}
+
+/* 视频生成设置样式 */
+.video-settings {
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 4px;
+    padding: 10px;
+    border: 1px solid #e0e0e0;
+}
+
+.video-settings .setting-item {
+    margin-bottom: 12px;
+}
+
+.video-settings .setting-item:last-child {
+    margin-bottom: 0;
+}
+
+.video-settings label {
+    font-size: 13px;
+    color: #555;
+    font-weight: 500;
+    min-width: 80px;
+}
+
+.video-settings .mode-select {
+    min-width: 120px;
+}
+
+.video-settings input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    cursor: pointer;
 }
 
 /* 提示词输入区域 */

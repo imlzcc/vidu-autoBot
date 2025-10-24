@@ -10,11 +10,18 @@
     <div class="container">
         <div class="header">
             <h1>Vidu批量视频生成</h1>
-            <div class="version">v3.0.0</div>
+            <div class="version">v4.1.0</div>
         </div>
         
         <div class="page-type-indicator">
             <span id="pageType">检测页面类型中...</span>
+        </div>
+        
+        <!-- Tab导航 -->
+        <div class="tab-navigation">
+            <button id="img2videoTab" class="tab-btn active">图生视频</button>
+            <button id="referenceTab" class="tab-btn">参考生视频</button>
+            <button id="text2videoTab" class="tab-btn">文生视频</button>
         </div>
         
         <!-- 图生视频模式 -->
@@ -55,6 +62,23 @@
             </div>
         </div>
         
+        <!-- 文生视频模式 -->
+        <div id="text2videoSection" class="section" style="display: none;">
+            <h3>文生视频模式</h3>
+            <div class="text2video-info">
+                <p>在此模式下，插件将：</p>
+                <ul>
+                    <li>自动切换到"文生视频"标签页</li>
+                    <li>批量输入提示词生成视频</li>
+                    <li>根据设置配置视频参数</li>
+                    <li>自动启用错峰模式（可选）</li>
+                </ul>
+                <div class="text2video-note">
+                    <strong>注意：</strong>文生视频模式不需要选择主体，直接根据提示词生成视频
+                </div>
+            </div>
+        </div>
+        
         <!-- 提示词输入区域 -->
         <div class="section">
             <h3>提示词输入</h3>
@@ -71,6 +95,43 @@
                 <span id="promptCount">0</span> 个提示词 | 
                 <span id="imageCount">0</span> 张图片 | 
                 将处理 <span id="taskCount">0</span> 个任务
+            </div>
+        </div>
+        
+        <!-- 视频生成设置 -->
+        <div id="videoSettingsSection" class="section" style="display: none;">
+            <h3>视频生成设置</h3>
+            <div class="video-settings">
+                <div class="setting-item">
+                    <label for="videoDuration">时长:</label>
+                    <select id="videoDuration" class="mode-select">
+                        <option value="2">2秒</option>
+                        <option value="4">4秒</option>
+                        <option value="6">6秒</option>
+                        <option value="8" selected>8秒</option>
+                    </select>
+                </div>
+                <div class="setting-item">
+                    <label for="videoAspectRatio">宽高比:</label>
+                    <select id="videoAspectRatio" class="mode-select">
+                        <option value="16:9">16:9 (横屏)</option>
+                        <option value="9:16" selected>9:16 (竖屏)</option>
+                        <option value="1:1">1:1 (正方形)</option>
+                    </select>
+                </div>
+                <div class="setting-item">
+                    <label for="videoQuantity">数量:</label>
+                    <select id="videoQuantity" class="mode-select">
+                        <option value="1" selected>1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                    </select>
+                </div>
+                <div class="setting-item">
+                    <label for="offPeakMode">错峰模式:</label>
+                    <input type="checkbox" id="offPeakMode" checked>
+                </div>
             </div>
         </div>
         

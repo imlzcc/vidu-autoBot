@@ -23,7 +23,7 @@ async function handleFileProcessing(data, sendResponse) {
         if (!currentTab.url.includes('vidu.cn/create/')) {
             sendResponse({
                 success: false,
-                error: '请先打开Vidu的创建页面 (img2video 或 reference)'
+                error: '请先打开Vidu的创建页面 (img2video、reference 或 text2video)'
             });
             return;
         }
